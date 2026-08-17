@@ -8,7 +8,9 @@ Layer 1 Intelligence / Execution Plane for XSMB Forensic / Fosennic architecture
 `xsmbv23/Quant_Engine` is the active Layer 1 execution plane.
 The chat window is communication only and is never the source of truth.
 
-The Brain foundation is frozen. Its database admission chain is **one ordered Forensic FSM**:
+## Frozen Brain foundation
+
+The Brain database admission chain is **one ordered Forensic FSM**:
 
 ```text
 DB_EXISTENCE
@@ -24,27 +26,9 @@ PASS is prerequisite only; it never inherits forward. UNKNOWN is not PASS. The f
 
 ## Room model
 
-Every sensor, mechanism, function, or algorithm is a room with:
-
-- immutable room identity/version;
-- explicit input/output contract;
-- explicit dependency list;
-- explicit inbound corridor;
-- explicit capability names;
-- source/code hashes;
-- verification evidence;
-- resource/memory budget;
-- fail-closed behavior.
+Every sensor, mechanism, function, or algorithm is a room with immutable identity/version, explicit I/O contract, dependencies, inbound corridor, capabilities, source/code hashes, verification evidence, resource/memory budget, and fail-closed behavior.
 
 A Quant Engine room is a **function boundary, not a second security boundary**. Brain remains the authority for corridor admission, permission graph, and Forensic governance.
-
-Conceptually:
-
-```text
-corridor_key + room_key -> admitted function call
-```
-
-A protected room may additionally require an inner release from Brain. Quant Engine cannot self-grant that release.
 
 ## Layer 1 directional graph
 
@@ -60,18 +44,28 @@ CANONICAL REAL DATA
 
 No implicit reverse edge and no implicit cycle is allowed.
 
-## Room 01
+## Room 01 — active implementation
 
-`contracts/room_01_signal.json` defines the first room. Its implementation is intentionally a deterministic skeleton until real canonical data is admitted. It must not invent a signal merely to produce a green demo.
+`room_01_signal.py` is preserved as historical evidence.
+`room_01_signal_v2.py` is preserved as a historical iteration.
+`room_01_signal_v3.py` is the current deterministic feature/selection implementation.
 
-The first receipt contains only compact forensic metadata:
+### Mandatory correction
+
+Recency exclusion is **not** applied before temporal feature extraction. Doing so would destroy T-1/T-2 observations and make temporal echo impossible to observe.
+
+Correct order:
 
 ```text
-input_hash
-output_hash
-runtime_ms
-memory_bytes
+bounded canonical window
+  -> extract frequency + recency flag + T-1/T-2/T-7 + digit imbalance
+  -> apply recency selection
+  -> candidate output
 ```
+
+Legacy V5.8/V16.0 cores provide research ideas only. Their Excel/stateful/crawler implementations are not copied into Room 01.
+
+Room 01 output is a measurable raw signal, **not a probability or proof of predictive edge**.
 
 ## Resource boundary
 
@@ -79,7 +73,7 @@ Render Free 512 MB is a hard architectural boundary. Use bounded streaming/chunk
 
 ## Development gate
 
-CI runs the room contract tests before any intelligence is added.
+CI/test gate:
 
 ```text
 python -m unittest discover -s tests -p 'test_*.py' -v
@@ -90,5 +84,5 @@ python -m unittest discover -s tests -p 'test_*.py' -v
 - Brain foundation: **FROZEN**
 - N071 terminal DB decision: **IMMUTABLE DENY**
 - Layer 1: **READY**
-- Room 01: **CONTRACT + DETERMINISTIC SKELETON ONLY**
+- Room 01: **V3 DETERMINISTIC FEATURE EXTRACTION + SELECTION**
 - Staircase/promotion: **LOCKED**
