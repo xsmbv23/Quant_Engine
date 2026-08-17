@@ -1,0 +1,18 @@
+{
+  "schema_version": "BUFFER_CAPTURE_V1",
+  "required": [
+    "business_date",
+    "source_id",
+    "source_url",
+    "retrieved_at_utc",
+    "raw_bytes_sha256",
+    "raw_artifact_path",
+    "status"
+  ],
+  "status_enum": ["UNVERIFIED", "PARTIAL", "READY", "CONFLICT"],
+  "raw_hash_rule": "SHA256_EXACT_RESPONSE_BYTES_BEFORE_PARSE",
+  "provenance_rule": "URL_PLUS_RETRIEVAL_TIMESTAMP_PLUS_SOURCE_ID",
+  "mutation_rule": "RAW_ARTIFACTS_ARE_APPEND_ONLY",
+  "consumer_rule": "BUFFER_MUST_NOT_BE_READ_BY_QUANT_EXECUTION",
+  "promotion_rule": "ONLY_ADMISSION_GATE_MAY_PROMOTE_TO_CANONICAL"
+}
