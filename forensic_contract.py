@@ -16,8 +16,6 @@ FORBIDDEN_RUNTIME_FIELDS = frozenset({
     "runtime", "debug", "debug_flags", "density_warning", "logs", "log", "trace", "metrics"
 })
 
-# N003: floats remain representable, but their type identity is explicit and
-# their decimal text is fixed. This prevents 1, 1.0, True and "1" collisions.
 FLOAT_PRECISION = 15
 
 
@@ -30,7 +28,6 @@ def _normalize(value: Any) -> Any:
             "items": [[str(k), _normalize(value[k])] for k in sorted(value, key=lambda x: str(x))],
         }
     if isinstance(value, (list, tuple)):
-        # Sequence order is semantic and therefore immutable in the hash domain.
         return {"__type__": "sequence", "items": [_normalize(v) for v in value]}
     if isinstance(value, (set, frozenset)):
         raise TypeError("CANONICAL_JSON_UNORDERED_SET_FORBIDDEN")
@@ -52,7 +49,7 @@ def _normalize(value: Any) -> Any:
 
 
 def canonical_bytes(value: Any) -> bytes:
-    """N003 hash domain: typed scalars, sorted dict keys, ordered lists, UTF-8."""
+    """N003 hash domain: typed scalars, sorted dict keys, ordered sequences, UTF-8."""
     normalized = _normalize(value)
     return json.dumps(
         normalized,
@@ -65,6 +62,28 @@ def canonical_bytes(value: Any) -> bytes:
 
 def sha256_canonical(value: Any) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
+
+
+def sha256_raw_bytes(raw: bytes) -> str:
+    """Hash exact bytes before parsing. LF/CRLF/BOM/encoding changes remain visible."""
+    if not isinstance(raw, bytes):
+        raise TypeError("RAW_BYTE_HASH_REQUIRES_BYTES")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def execution_trace_hash(trace_steps: list[dict[str, Any]] | tuple[dict[str, Any], ...]) -> str:
+    """Hash only declared semantic execution steps; never full debug logs."""
+    if not isinstance(trace_steps, (list, tuple)):
+        raise TypeError("EXECUTION_TRACE_MUST_BE_SEQUENCE")
+    semantic = []
+    for step in trace_steps:
+        if not isinstance(step, dict):
+            raise TypeError("EXECUTION_TRACE_STEP_MUST_BE_DICT")
+        forbidden = set(step) & FORBIDDEN_RUNTIME_FIELDS
+        if forbidden:
+            raise ValueError(f"EXECUTION_TRACE_RUNTIME_FIELDS_FORBIDDEN:{','.join(sorted(forbidden))}")
+        semantic.append(step)
+    return sha256_canonical(semantic)
 
 
 def feature_snapshot(feature_rows: list[dict[str, Any]] | tuple[dict[str, Any], ...]) -> list[dict[str, Any]]:
