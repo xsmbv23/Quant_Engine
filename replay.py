@@ -64,10 +64,10 @@ def replay(path: str | Path) -> dict:
     if output == []:
         if not features:
             empty_reason = "INSUFFICIENT_DATA"
-        elif not any(getattr(x, "selected", False) for x in features):
-            empty_reason = "NO_SIGNAL"
-        else:
+        elif all(x.recency_excluded for x in features):
             empty_reason = "FILTERED_OUT"
+        else:
+            empty_reason = "NO_SIGNAL"
 
     trace = [
         {"step": "LOAD_RECEIPT", "room_version": version},
