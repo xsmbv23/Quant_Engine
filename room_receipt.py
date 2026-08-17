@@ -1,7 +1,7 @@
 """Forensic receipt helpers for deterministic Layer 1 rooms.
 
-No secret values are accepted. The execution signature identifies the exact
-room code/runtime/dependency context without becoming a decision engine.
+The execution signature identifies the exact room code/runtime/platform context.
+No secret values are accepted and no wall-clock value enters the signature.
 """
 from __future__ import annotations
 
@@ -11,13 +11,15 @@ import platform
 import sys
 from pathlib import Path
 
+from forensic_contract import sha256_canonical
+
 
 def canonical_json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def sha256_json(value: object) -> str:
-    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+    return sha256_canonical(value)
 
 
 def file_sha256(path: str | Path) -> str:
@@ -33,6 +35,10 @@ def execution_signature(room_version: str, code_path: str | Path, dependency_has
         "room_version": room_version,
         "code_hash": file_sha256(code_path),
         "python_version": platform.python_version(),
+        "python_implementation": sys.implementation.name,
+        "os": platform.system(),
+        "platform": platform.platform(aliased=False, terse=False),
+        "arch": platform.machine(),
         "dependency_hash": dependency_hash,
     }
 
@@ -46,5 +52,4 @@ def build_receipt(*, input_value: object, feature_value: object, policy_value: o
         "policy_hash": sha256_json(policy_value),
         "output_hash": sha256_json(output_value),
         "execution_signature": signature,
-        "python_implementation": sys.implementation.name,
     }
