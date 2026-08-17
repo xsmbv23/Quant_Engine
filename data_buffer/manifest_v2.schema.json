@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "N003 Forensic Data Buffer Manifest V2",
+  "type": "object",
+  "required": ["schema_version", "window_days", "entries", "readiness", "promotion"],
+  "properties": {
+    "schema_version": {"const": "BUFFER_CAPTURE_V2"},
+    "window_days": {"type": "integer", "minimum": 1},
+    "entries": {"type": "array"},
+    "readiness": {
+      "type": "object",
+      "required": ["contiguous_days", "coverage_ratio", "quorum_ok_days", "conflict_days", "readiness_score"],
+      "properties": {
+        "contiguous_days": {"type": "integer", "minimum": 0},
+        "coverage_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "quorum_ok_days": {"type": "integer", "minimum": 0},
+        "conflict_days": {"type": "integer", "minimum": 0},
+        "readiness_score": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "promotion": {"type": "string", "enum": ["DENY", "READY"]}
+  },
+  "additionalProperties": true
+}
