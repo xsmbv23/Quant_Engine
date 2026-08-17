@@ -1,0 +1,45 @@
+{
+  "contract_id": "LAYER1_TEMPORAL_DOMAIN_REPLAY_V1",
+  "room": "ROOM_01_SIGNAL_V4",
+  "time_index": {
+    "first_class": true,
+    "alignment": "CALENDAR_DATE",
+    "index_alignment_forbidden": true,
+    "t_minus_1": "anchor_date_minus_1_calendar_day",
+    "t_minus_2": "anchor_date_minus_2_calendar_days",
+    "t_minus_7": "anchor_date_minus_7_calendar_days"
+  },
+  "missing_day_policy": {
+    "default": "STRICT",
+    "allowed": ["STRICT", "GAP_AWARE"],
+    "synthetic_fill": false,
+    "gap_aware_missing_value": null
+  },
+  "value_domain": {
+    "type": "integer",
+    "min": 0,
+    "max": 99,
+    "cardinality_per_day": 27
+  },
+  "feature_density": {
+    "default_threshold": 0.10,
+    "default_action": "WARNING",
+    "explicit_threshold_required_for_DENY": true
+  },
+  "replay": {
+    "first_class": true,
+    "cli": "python replay.py receipt.json",
+    "allowlisted_rooms": ["ROOM_01_SIGNAL_V4"],
+    "required_hashes": ["input_hash", "expected_feature_snapshot_hash", "expected_output_hash"],
+    "same_input_same_signature_must_reproduce": true
+  },
+  "forensic_invariants": [
+    "TEMPORAL_FEATURES_MUST_BE_DATE_ALIGNED_NOT_INDEX_ALIGNED",
+    "TEMPORAL_FEATURE_MUST_NOT_BE_FABRICATED",
+    "OUT_OF_DOMAIN_VALUE_IS_HARD_DENY",
+    "UNKNOWN_IS_NOT_PASS",
+    "REPLAY_IS_FIRST_CLASS_CAPABILITY",
+    "NO_HIDDEN_STATE",
+    "NO_LOOKAHEAD"
+  ]
+}
