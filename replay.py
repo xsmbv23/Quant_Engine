@@ -1,10 +1,9 @@
 """Deterministic forensic replay for approved Layer 1 rooms.
 
-Usage:
-    python replay.py receipt.json
+N003 contract:
+    FRESH1 == REPLAY1 == REPLAY2 == FRESH2
 
-The replay bundle carries the exact canonical input and expected hashes.
-Only explicitly allow-listed room versions may execute.
+Replay is reproducible evidence, not correctness proof.
 """
 from __future__ import annotations
 
@@ -14,14 +13,16 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from room_receipt import sha256_json
+from forensic_contract import sha256_canonical
+from replay_guard import assert_replay_module_pure, read_immutable_bytes
 from time_index_contract import DayRecord
 
 ALLOWLIST = {"ROOM_01_SIGNAL_V4": "room_01_signal_v4"}
 
 
 def load_receipt(path: str | Path) -> dict:
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    raw = read_immutable_bytes(path)
+    payload = json.loads(raw.decode("utf-8"))
     required = {"room_version", "input", "expected_output_hash", "expected_feature_snapshot_hash"}
     missing = required - payload.keys()
     if missing:
@@ -35,6 +36,9 @@ def replay(path: str | Path) -> dict:
     module_name = ALLOWLIST.get(version)
     if not module_name:
         raise ValueError("REPLAY_ROOM_NOT_ALLOWLISTED")
+
+    module_path = Path(importlib.util.find_spec(module_name).origin)
+    assert_replay_module_pure(module_path)
 
     records = tuple(
         DayRecord(date.fromisoformat(item["date"]), tuple(item["values"]))
@@ -51,16 +55,22 @@ def replay(path: str | Path) -> dict:
     feature_snapshot = [x.__dict__ for x in features]
 
     observed = {
-        "input_hash": sha256_json(receipt["input"]),
-        "feature_snapshot_hash": sha256_json(feature_snapshot),
-        "policy_hash": sha256_json(policy),
-        "output_hash": sha256_json(output),
+        "input_hash": sha256_canonical(receipt["input"]),
+        "feature_snapshot_hash": sha256_canonical(feature_snapshot),
+        "policy_hash": sha256_canonical(policy),
+        "output_hash": sha256_canonical(output),
         "room_version": version,
+        "reproducibility": "PASS" if (
+            sha256_canonical(receipt["input"]) == receipt.get("input_hash", sha256_canonical(receipt["input"]))
+            and sha256_canonical(feature_snapshot) == receipt["expected_feature_snapshot_hash"]
+            and sha256_canonical(output) == receipt["expected_output_hash"]
+        ) else "DENY",
+        "correctness": "NOT_PROVEN",
     }
     observed["input_match"] = observed["input_hash"] == receipt.get("input_hash", observed["input_hash"])
     observed["feature_match"] = observed["feature_snapshot_hash"] == receipt["expected_feature_snapshot_hash"]
     observed["output_match"] = observed["output_hash"] == receipt["expected_output_hash"]
-    observed["replay"] = "PASS" if observed["feature_match"] and observed["output_match"] else "DENY"
+    observed["replay"] = observed["reproducibility"]
     return observed
 
 
