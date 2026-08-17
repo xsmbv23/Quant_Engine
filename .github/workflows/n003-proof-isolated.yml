@@ -1,0 +1,15 @@
+name: N003 Forensic Proof Isolated
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  n003-proof-isolated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run N003 proof only
+        run: python tools/n003_proof_runner.py
