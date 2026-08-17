@@ -1,0 +1,22 @@
+{
+  "room_id": "ROOM_01_SIGNAL",
+  "version": "1.0.0",
+  "layer": "LAYER_1",
+  "role": "function",
+  "authority": "QUANT_ENGINE_EXECUTION",
+  "governance_authority": "PROJECT_BRAIN_AI",
+  "input": "canonical_real_data",
+  "output": "deterministic_signal_score",
+  "dependencies": [],
+  "inbound_corridors": ["CANONICAL_DATA_TO_SIGNAL"],
+  "required_capabilities": ["CORRIDOR_KEY_CANONICAL_DATA_TO_SIGNAL", "ROOM_KEY_ROOM_01_SIGNAL"],
+  "protected_room": false,
+  "inner_release_required": false,
+  "synthetic_data": false,
+  "lookahead": false,
+  "whole_dataset_materialization": false,
+  "memory_policy": "BOUNDED_STREAMING",
+  "forensic_receipt": "INPUT_HASH_OUTPUT_HASH_RUNTIME_MEMORY",
+  "fail_closed": true,
+  "status": "DESIGN_ONLY_NO_EXECUTION_YET"
+}
