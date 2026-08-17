@@ -2,47 +2,13 @@
 
 Layer 1 Intelligence / Execution Plane for XSMB Forensic / Fosennic architecture.
 
-This repository is intentionally **empty of trading intelligence at foundation stage**.
-
 ## Authority
 
-`Project_Brain_AI` is the frozen Governance and persistent-memory control plane.
-
-`Quant_Engine` is the active Layer 1 execution plane for future sensors, mechanisms,
-functions and algorithms.
-
+`xsmbv23/Project_Brain_AI` is the frozen Governance and persistent-memory control plane.
+`xsmbv23/Quant_Engine` is the active Layer 1 execution plane.
 The chat window is communication only and is never the source of truth.
 
-## Critical separation rule
-
-> **A Room in Quant Engine is a function boundary, not a second security boundary.**
-
-Quant Engine MUST NOT recreate Brain's corridor locks, permission graph, Forensic
-admission FSM, or another governance system.
-
-Security/admission authority remains in Brain. Quant Engine implements governed
-execution once its room contract has been admitted.
-
-## Room model
-
-Every sensor/mechanism/function/algorithm is a separately governed room with:
-
-- room identity and version;
-- input/output contract;
-- dependency declaration;
-- allowed callers;
-- allowed corridors;
-- required capabilities;
-- lineage and source hashes;
-- verification evidence;
-- fail-closed door state.
-
-Room-local contracts validate execution boundaries, but they do not become a new
-Forensic authority.
-
-## Brain Forensic admission semantics
-
-There is **ONE** Forensic database admission FSM:
+The Brain foundation is frozen. Its database admission chain is **one ordered Forensic FSM**:
 
 ```text
 DB_EXISTENCE
@@ -54,45 +20,75 @@ DB_EXISTENCE
  -> PROMOTION
 ```
 
-A PASS at one gate is only a prerequisite for evaluating the next gate. It never
-inherits forward. The first FAIL or UNKNOWN stops reachability; later gates are
-`UNREACHED`, not `PASS` or `FAIL`.
+PASS is prerequisite only; it never inherits forward. UNKNOWN is not PASS. The first FAIL or UNKNOWN stops reachability and later gates remain `UNREACHED`. Quant Engine must never reopen or reinterpret the frozen Brain foundation.
 
-The foundation currently has a terminal immutable external-limitation DENY for
-durable PostgreSQL binding. Quant Engine MUST NOT reopen or reinterpret that state.
+## Room model
 
-## Layer 1 first milestone
+Every sensor, mechanism, function, or algorithm is a room with:
 
-The first execution frame is intentionally minimal:
+- immutable room identity/version;
+- explicit input/output contract;
+- explicit dependency list;
+- explicit inbound corridor;
+- explicit capability names;
+- source/code hashes;
+- verification evidence;
+- resource/memory budget;
+- fail-closed behavior.
+
+A Quant Engine room is a **function boundary, not a second security boundary**. Brain remains the authority for corridor admission, permission graph, and Forensic governance.
+
+Conceptually:
 
 ```text
-CANONICAL DATA
-  -> INPUT ADAPTER
-  -> ROOM 01 / SIGNAL FUNCTION
-  -> SCORING
-  -> OUTPUT
+corridor_key + room_key -> admitted function call
 ```
 
-Success criterion:
+A protected room may additionally require an inner release from Brain. Quant Engine cannot self-grant that release.
+
+## Layer 1 directional graph
+
+The first graph is intentionally acyclic:
 
 ```text
-RUN -> OUTPUT -> MEASURABLE RESULT
+CANONICAL REAL DATA
+        -> INPUT_ADAPTER
+        -> ROOM_01_SIGNAL
+        -> SCORE
+        -> OUTPUT_RECEIPT
 ```
 
-Do not build multi-room orchestration, heavy corridor abstractions, duplicate
-permission systems, or duplicate forensic layers before the first real end-to-end
-signal result exists.
+No implicit reverse edge and no implicit cycle is allowed.
+
+## Room 01
+
+`contracts/room_01_signal.json` defines the first room. Its implementation is intentionally a deterministic skeleton until real canonical data is admitted. It must not invent a signal merely to produce a green demo.
+
+The first receipt contains only compact forensic metadata:
+
+```text
+input_hash
+output_hash
+runtime_ms
+memory_bytes
+```
 
 ## Resource boundary
 
-Render Free 512 MB is a hard architectural boundary. Keep the Brain runtime dataset-free
-and use bounded, streaming/chunked work in execution components. A 320 MiB guard is
-the conservative Brain runtime guard. Never trade forensic correctness for memory.
+Render Free 512 MB is a hard architectural boundary. Use bounded streaming/chunked execution and avoid whole-dataset materialization. Never trade forensic correctness for memory.
+
+## Development gate
+
+CI runs the room contract tests before any intelligence is added.
+
+```text
+python -m unittest discover -s tests -p 'test_*.py' -v
+```
 
 ## Foundation status
 
 - Brain foundation: **FROZEN**
 - N071 terminal DB decision: **IMMUTABLE DENY**
-- Layer 1 design: **READY**
+- Layer 1: **READY**
+- Room 01: **CONTRACT + DETERMINISTIC SKELETON ONLY**
 - Staircase/promotion: **LOCKED**
-- Next execution milestone: **QUANT-N001**
