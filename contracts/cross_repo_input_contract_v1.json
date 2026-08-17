@@ -1,0 +1,25 @@
+{
+  "contract_id": "XSMB_QUANT_TO_QUANT_ENGINE_INPUT_V1",
+  "producer_repo": "xsmbv23/xsmb-quant",
+  "consumer_repo": "xsmbv23/Quant_Engine",
+  "direction": "DATA_FOUNDATION_TO_LAYER_1",
+  "source_truth": "xsmb-quant",
+  "calculation_authority": "Quant_Engine",
+  "brain_authority": "Project_Brain_AI",
+  "transport": "canonical_envelope",
+  "freeze_required": true,
+  "hash_algorithm": "SHA-256",
+  "room_version_pin_required": true,
+  "synthetic_values": false,
+  "implicit_fill": false,
+  "lookahead": false,
+  "unknown_policy": "DEFAULT_DENY",
+  "schema_mismatch": "DENY",
+  "mutation_after_freeze": "DENY",
+  "receipt_required": true,
+  "promotion_requires": [
+    "canonical_input_hash_match",
+    "room_version_match",
+    "deterministic_receipt"
+  ]
+}
