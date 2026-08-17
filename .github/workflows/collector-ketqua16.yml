@@ -1,0 +1,69 @@
+name: ketqua16-forensic-raw-capture
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 12 * * *" # 19:30 Asia/Ho_Chi_Minh
+  push:
+    paths:
+      - ".github/workflows/collector-ketqua16.yml"
+      - "collectors/ketqua16_raw.py"
+      - "data_buffer/acquisition_status.py"
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TZ: Asia/Ho_Chi_Minh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Capture exact response bytes
+        run: |
+          python collectors/ketqua16_raw.py "$(date +%F)"
+
+      - name: Persist acquisition receipt only
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("data_buffer/raw_artifacts")
+          receipts = sorted(root.glob("*/ketqua16_net_*.receipt.json"), key=lambda p: p.stat().st_mtime)
+          if not receipts:
+              raise SystemExit("NO_RECEIPT")
+          src = receipts[-1]
+          data = json.loads(src.read_text(encoding="utf-8"))
+          out = Path("data_buffer/acquisition_status.jsonl")
+          row = {
+              "business_date": data["business_date"],
+              "source_id": data["source_id"],
+              "source_url": data["source_url"],
+              "retrieved_at_utc": data["retrieved_at_utc"],
+              "http_status": data["http_status"],
+              "raw_bytes_sha256": data["raw_bytes_sha256"],
+              "raw_artifact_path": data["raw_artifact_path"],
+              "status": "PARTIAL",
+              "authority": "OBSERVATION_ONLY",
+          }
+          with out.open("a", encoding="utf-8") as fh:
+              fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+          PY
+
+      - name: Commit forensic capture
+        run: |
+          git config user.name "XSMB Forensic Collector"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data_buffer/raw_artifacts data_buffer/acquisition_status.jsonl
+          if git diff --cached --quiet; then
+            echo "NO_NEW_CAPTURE"
+            exit 0
+          fi
+          git commit -m "data: ketqua16 raw forensic capture $(date +%F)"
+          git push
