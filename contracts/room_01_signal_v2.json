@@ -1,0 +1,33 @@
+{
+  "room_id": "ROOM_01_SIGNAL",
+  "version": "2.0.0",
+  "layer": "LAYER_1",
+  "role": "MEASUREMENT_AND_SELECTION_FUNCTION",
+  "authority": "QUANT_ENGINE_EXECUTION",
+  "governance_authority": "PROJECT_BRAIN_AI",
+  "input": {"type": "bounded_windowed_days", "max_window": 30, "causal": true, "synthetic": false},
+  "features": {
+    "required": ["frequency_30d", "recency", "temporal_echo_t1", "temporal_echo_t2", "temporal_echo_t7", "digit_head_imbalance", "digit_tail_imbalance"],
+    "semantic_required": true,
+    "normalization_is_policy": true
+  },
+  "output": {
+    "type": "raw_signal_candidates",
+    "decision": false,
+    "probability": false,
+    "order_stable": true,
+    "max_candidates": 10
+  },
+  "forensic": {
+    "required_hashes": ["input_hash", "feature_snapshot_hash", "policy_hash", "output_hash", "execution_signature"],
+    "execution_signature_required": true
+  },
+  "edges": [],
+  "implicit_edges": false,
+  "hidden_state": false,
+  "global_cache": false,
+  "state_between_runs": false,
+  "fail_closed": true,
+  "memory_policy": "BOUNDED_STREAMING",
+  "promotion": "LOCKED_UNTIL_BRAIN_ADMISSION"
+}
