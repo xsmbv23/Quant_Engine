@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quant Engine N003 Proof Receipt",
+  "type": "object",
+  "required": [
+    "action_id",
+    "fixture_id",
+    "execution_signature",
+    "input_source_id",
+    "input_hash",
+    "feature_snapshot_hash",
+    "semantic_trace_hash",
+    "output_hash",
+    "valid_empty_reason",
+    "run_relation",
+    "result"
+  ],
+  "properties": {
+    "action_id": {"const": "QUANT-N003-PROOF"},
+    "fixture_id": {"type": "string", "minLength": 1},
+    "execution_signature": {"type": "string", "minLength": 1},
+    "input_source_id": {"type": "string", "minLength": 1},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "feature_snapshot_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "semantic_trace_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "output_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "valid_empty_reason": {"type": ["string", "null"]},
+    "run_relation": {"enum": ["FRESH", "REPLAY", "CROSS_ENV_NON_COMPARABLE"]},
+    "result": {"enum": ["PASS", "DENY", "UNREACHED"]}
+  },
+  "additionalProperties": false
+}
