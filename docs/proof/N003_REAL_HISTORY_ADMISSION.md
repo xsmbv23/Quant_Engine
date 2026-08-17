@@ -81,7 +81,7 @@ RAW SOURCE SET
     -> immutable evidence receipt
 ```
 
-`canonical_input.py` remains the only canonical JSON freeze primitive for the engine. cite-placeholder
+`canonical_input.py` remains the canonical JSON freeze primitive for the engine.
 
 ## Required proof sequence
 
