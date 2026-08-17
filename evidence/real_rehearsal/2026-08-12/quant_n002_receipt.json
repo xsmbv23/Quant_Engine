@@ -1,0 +1,33 @@
+{
+  "action_id": "QUANT-N002",
+  "status": "VERIFICATION_ONLY",
+  "source_truth_repo": "xsmbv23/xsmb-quant",
+  "fixture_id": "XSMB-2026-08-12-REAL-SOURCE-001",
+  "source_file_sha256": "96328e7808165f60fd4513f2dbe77936c12e3fc3f918896c62e3f0049306e225",
+  "fixture_payload_sha256": "d80bff3b3d8576263f9eb9c103656a8512360a8376b0d30b8ea1b5680291b76a",
+  "room_version": "ROOM_01_SIGNAL_V4",
+  "input": {
+    "records": [{"date": "2026-08-12", "values": [82326,31773,64497,88592,50195,46812,80982,66597,76120,13434,172,162,3526,188,3050,2194,4509,7308,9434,6888,540,59,81,21,97,42,0]}],
+    "missing_day_policy": "STRICT",
+    "min_feature_density": 0.10,
+    "density_action": "WARNING",
+    "limit": 10
+  },
+  "input_hash": "5d77e548cefbaf12f46cd8ad7c6729891444fd026ac674f39eadaf691f6e487b",
+  "feature_snapshot_hash": "9cee85b4a4ce773efe98e0d0486ea8e47c3cd488c6f4bf738b0c7fd4de4367df",
+  "policy_hash": "65aaca791ed625ebdfff98f1d74c357dd85768556e4d77a66d76bfb5e83766bf",
+  "output": [],
+  "output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "temporal_observation": {
+    "latest_date": "2026-08-12",
+    "window_days": 1,
+    "t1": "GAP",
+    "t2": "GAP",
+    "t7": "GAP",
+    "synthetic_fill": false,
+    "lookahead": false
+  },
+  "feature_density": 0.27,
+  "promotion": "DENY_QUORUM_LT_2",
+  "determinism_replay_required": true
+}
