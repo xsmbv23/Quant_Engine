@@ -31,6 +31,14 @@ def fresh_execute(receipt: dict) -> dict:
     )
     output = [x.number for x in select_candidates(features, receipt["input"].get("limit", 10))]
     semantic = feature_snapshot([x.__dict__ for x in features])
+    empty_reason = None
+    if output == []:
+        if not features:
+            empty_reason = "INSUFFICIENT_DATA"
+        elif all(x.recency_excluded for x in features):
+            empty_reason = "FILTERED_OUT"
+        else:
+            empty_reason = "NO_SIGNAL"
     trace = [
         {"step": "LOAD_RECEIPT", "room_version": receipt["room_version"]},
         {"step": "PURENESS_CHECK", "module": "room_01_signal_v4"},
@@ -38,6 +46,7 @@ def fresh_execute(receipt: dict) -> dict:
         {"step": "EXTRACT_FEATURES", "feature_count": len(semantic)},
         {"step": "APPLY_POLICY", "missing_day_policy": receipt["input"].get("missing_day_policy", "STRICT"), "density_action": receipt["input"].get("density_action", "WARNING")},
         {"step": "SELECT_CANDIDATES", "limit": receipt["input"].get("limit", 10), "candidate_count": len(output)},
+        {"step": "EMPTY_REASON", "value": empty_reason},
     ]
     return {
         "input_hash": sha256_canonical(receipt["input"]),
@@ -72,7 +81,7 @@ def main() -> int:
     fresh2 = fresh_execute(copy.deepcopy(receipt))
 
     checks = {
-        "fresh1_replay1": all(fresh1[k] == replay1[k] for k in ("input_hash", "feature_snapshot_hash", "output_hash")),
+        "fresh1_replay1": all(fresh1[k] == replay1[k] for k in ("input_hash", "feature_snapshot_hash", "output_hash", "execution_trace_hash")),
         "replay1_replay2": all(replay1[k] == replay2[k] for k in ("input_hash", "feature_snapshot_hash", "output_hash", "execution_trace_hash")),
         "fresh1_fresh2": all(fresh1[k] == fresh2[k] for k in ("input_hash", "feature_snapshot_hash", "output_hash", "execution_trace_hash")),
         "trace_equivalence": fresh1["execution_trace_hash"] == replay1["execution_trace_hash"],
