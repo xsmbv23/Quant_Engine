@@ -44,28 +44,57 @@ CANONICAL REAL DATA
 
 No implicit reverse edge and no implicit cycle is allowed.
 
-## Room 01 — active implementation
+## Room 01 — V4 temporal/domain hardening
 
-`room_01_signal.py` is preserved as historical evidence.
-`room_01_signal_v2.py` is preserved as a historical iteration.
-`room_01_signal_v3.py` is the current deterministic feature/selection implementation.
+`room_01_signal.py`, `room_01_signal_v2.py`, and `room_01_signal_v3.py` are preserved as historical evidence. `room_01_signal_v4.py` is the current temporal/domain-hardened implementation.
 
-### Mandatory correction
+### First-class time index
 
-Recency exclusion is **not** applied before temporal feature extraction. Doing so would destroy T-1/T-2 observations and make temporal echo impossible to observe.
-
-Correct order:
+Temporal identity is carried by `DayRecord(date, values)`. T-1/T-2/T-7 are resolved from the **calendar date**, never from record position.
 
 ```text
-bounded canonical window
-  -> extract frequency + recency flag + T-1/T-2/T-7 + digit imbalance
-  -> apply recency selection
-  -> candidate output
+anchor_date
+  -> anchor_date - 1 calendar day = T-1
+  -> anchor_date - 2 calendar days = T-2
+  -> anchor_date - 7 calendar days = T-7
 ```
 
-Legacy V5.8/V16.0 cores provide research ideas only. Their Excel/stateful/crawler implementations are not copied into Room 01.
+Invariant:
 
-Room 01 output is a measurable raw signal, **not a probability or proof of predictive edge**.
+```text
+TEMPORAL_FEATURES MUST BE DATE-ALIGNED, NOT INDEX-ALIGNED
+```
+
+### Missing-day semantics
+
+Default policy is `STRICT`: a missing calendar day is a hard deny.
+Explicit `GAP_AWARE` is allowed for measurement/research and never fabricates a day; an unavailable temporal observation is represented by a gap flag and does not shift T-1/T-2/T-7.
+
+Synthetic fill is forbidden.
+
+### Numeric domain lock
+
+Every canonical day must contain exactly 27 integer values in `0..99`.
+
+```text
+VALUE_DOMAIN = integer[0..99], cardinality=27
+```
+
+Out-of-domain values or wrong daily cardinality are hard deny conditions.
+
+### Feature density guard
+
+Density is an explicit measurable diagnostic. Default threshold is `0.10` over the 100-value universe and default action is `WARNING`. A DENY action must be explicitly requested with a threshold; density is never silently converted into a decision.
+
+### Replay
+
+Replay is first-class:
+
+```text
+python replay.py receipt.json
+```
+
+Only allow-listed room versions may replay. The replay bundle carries canonical input and expected feature/output hashes. Same canonical input + same room signature must reproduce the same feature snapshot and output hash.
 
 ## Resource boundary
 
@@ -73,16 +102,14 @@ Render Free 512 MB is a hard architectural boundary. Use bounded streaming/chunk
 
 ## Development gate
 
-CI/test gate:
-
 ```text
 python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-## Foundation status
+## Current status
 
 - Brain foundation: **FROZEN**
-- N071 terminal DB decision: **IMMUTABLE DENY**
+- N071 terminal DB decision: **IMMUTABLE DENY** due external binding limitation
 - Layer 1: **READY**
-- Room 01: **V3 DETERMINISTIC FEATURE EXTRACTION + SELECTION**
+- Room 01: **V4 DATE-ALIGNED + DOMAIN-LOCKED + DENSITY-GUARDED + REPLAYABLE**
 - Staircase/promotion: **LOCKED**
