@@ -1,0 +1,39 @@
+{
+  "contract_id": "ROOM_01_INPUT_ADAPTER_V1",
+  "room": "LAYER_1_ROOM_01",
+  "role": "RAW_INPUT_ADMISSION_ONLY",
+  "format": "NDJSON",
+  "record_schema": {
+    "business_date": "YYYY-MM-DD",
+    "source_id": "non-empty string",
+    "value": "integer 0..99",
+    "raw_sha256": "64 lowercase hex characters"
+  },
+  "required_order": ["business_date", "source_id", "value", "raw_sha256"],
+  "window": {
+    "max_days": 30,
+    "lookahead": false,
+    "date_alignment": true,
+    "index_alignment": false
+  },
+  "admission": {
+    "blank_line": "DENY",
+    "malformed_json": "DENY",
+    "missing_field": "DENY",
+    "unknown_field": "DENY",
+    "bad_date": "DENY",
+    "future_date": "DENY",
+    "value_out_of_domain": "DENY",
+    "hash_mismatch": "DENY",
+    "duplicate_identity": "DENY",
+    "oversized_record": "DENY",
+    "synthetic_fill": false
+  },
+  "authority": "OBSERVATION_ONLY",
+  "promotion": "FORBIDDEN",
+  "memory": {
+    "streaming": true,
+    "bulk_load": false,
+    "max_line_bytes": 16384
+  }
+}
