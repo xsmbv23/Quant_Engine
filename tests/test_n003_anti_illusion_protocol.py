@@ -8,30 +8,34 @@ scenarios.
 from __future__ import annotations
 
 import unittest
+from datetime import date
 
 from room_01_signal_v4 import extract_features, select_candidates
 from time_index_contract import DayRecord
-from datetime import date
 
 
 class N003AntiIllusionProtocolTests(unittest.TestCase):
     def _two_day_fixture(self):
+        # Room 01 has an explicit 27-value domain. The overlap creates observable
+        # temporal/frequency differences while remaining a bounded test fixture.
         return (
-            DayRecord(date(2026, 8, 11), (82326, 31773, 64497, 88592)),
-            DayRecord(date(2026, 8, 12), (50195, 46812, 80982, 66597)),
+            DayRecord(date(2026, 8, 11), tuple(range(27))),
+            DayRecord(date(2026, 8, 12), tuple(range(1, 28))),
+        )
+
+    def _mutated_fixture(self):
+        return (
+            self._two_day_fixture()[0],
+            DayRecord(date(2026, 8, 12), tuple(range(1, 27)) + (99,)),
         )
 
     def test_semantic_input_mutation_is_observable(self):
-        base = self._two_day_fixture()
-        mutated = (
-            base[0],
-            DayRecord(date(2026, 8, 12), (50195, 46812, 80982, 66598)),
+        base_features, _ = extract_features(self._two_day_fixture())
+        mutated_features, _ = extract_features(self._mutated_fixture())
+        self.assertNotEqual(
+            [x.__dict__ for x in base_features],
+            [x.__dict__ for x in mutated_features],
         )
-        base_features, _ = extract_features(base)
-        mutated_features, _ = extract_features(mutated)
-        base_semantic = [x.__dict__ for x in base_features]
-        mutated_semantic = [x.__dict__ for x in mutated_features]
-        self.assertNotEqual(base_semantic, mutated_semantic)
 
     def test_feature_information_is_not_assumed_from_replay(self):
         features, _ = extract_features(self._two_day_fixture())
@@ -40,12 +44,7 @@ class N003AntiIllusionProtocolTests(unittest.TestCase):
 
     def test_output_is_not_the_only_causal_evidence(self):
         features_a, _ = extract_features(self._two_day_fixture())
-        features_b, _ = extract_features(
-            (
-                DayRecord(date(2026, 8, 11), (82326, 31773, 64497, 88592)),
-                DayRecord(date(2026, 8, 12), (50195, 46812, 80982, 66598)),
-            )
-        )
+        features_b, _ = extract_features(self._mutated_fixture())
         output_a = [x.number for x in select_candidates(features_a, 10)]
         output_b = [x.number for x in select_candidates(features_b, 10)]
         # If outputs happen to coincide, the semantic feature evidence still
