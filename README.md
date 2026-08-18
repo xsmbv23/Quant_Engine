@@ -32,13 +32,14 @@ A Quant Engine room is a **function boundary, not a second security boundary**. 
 
 ## Layer 1 directional graph
 
-The first graph is intentionally acyclic:
+The graph remains intentionally acyclic:
 
 ```text
 CANONICAL REAL DATA
         -> INPUT_ADAPTER
         -> ROOM_01_SIGNAL
-        -> SCORE
+        -> ROOM_02_EDGE_DETECTOR
+        -> SCORE / EV EVIDENCE
         -> OUTPUT_RECEIPT
 ```
 
@@ -55,8 +56,8 @@ Temporal identity is carried by `DayRecord(date, values)`. T-1/T-2/T-7 are resol
 ```text
 anchor_date
   -> anchor_date - 1 calendar day = T-1
-  -> anchor_date - 2 calendar days = T-2
-  -> anchor_date - 7 calendar days = T-7
+  -> anchor_date - 2 calendar day = T-2
+  -> anchor_date - 7 calendar day = T-7
 ```
 
 Invariant:
@@ -82,23 +83,46 @@ VALUE_DOMAIN = integer[0..99], cardinality=27
 
 Out-of-domain values or wrong daily cardinality are hard deny conditions.
 
-### Feature density guard
+## Room 02 — Edge Detector V1
 
-Density is an explicit measurable diagnostic. Default threshold is `0.10` over the 100-value universe and default action is `WARNING`. A DENY action must be explicitly requested with a threshold; density is never silently converted into a decision.
+`room_02_edge_detector.py` is the first mathematical research room.
 
-### Replay
+Its first hypothesis is deliberately narrow:
 
-Replay is first-class:
+> Does the historical frequency prior available at day `t` contain OOS information about number presence at `t+1`?
+
+The room computes only evidence:
 
 ```text
-python replay.py receipt.json
+feature at t
+   -> OOS conditional probability
+   -> baseline probability
+   -> probability delta
+   -> permutation p-value
+   -> optional explicit payoff EV
+   -> EDGE_CANDIDATE / NO_EDGE_PROVEN
 ```
 
-Only allow-listed room versions may replay. The replay bundle carries canonical input and expected feature/output hashes. Same canonical input + same room signature must reproduce the same feature snapshot and output hash.
+### Hard research rules
+
+- no target leakage
+- training-only threshold selection
+- no in-sample claim as an edge
+- permutation test required
+- explicit payoff model for EV
+- Kelly is downstream and cannot manufacture an edge
+- multiple-testing correction before promotion
+- `EDGE_CANDIDATE` is not trade authorization
+
+The full protocol is in `docs/EDGE_SEARCH_PROTOCOL_V1.md`.
+
+## Replay and evidence
+
+Replay remains first-class. A research result must be reproducible from canonical input, room signature, parameters, and compact evidence hashes. Debug state is not part of the canonical output hash.
 
 ## Resource boundary
 
-Render Free 512 MB is a hard architectural boundary. Use bounded streaming/chunked execution and avoid whole-dataset materialization. Never trade forensic correctness for memory.
+Render Free 512 MB is a hard architectural boundary. Use bounded streaming/chunked execution and avoid whole-dataset materialization. Heavy historical research must run outside the Brain runtime. Never trade forensic correctness for memory.
 
 ## Development gate
 
@@ -110,6 +134,7 @@ python -m unittest discover -s tests -p 'test_*.py' -v
 
 - Brain foundation: **FROZEN**
 - N071 terminal DB decision: **IMMUTABLE DENY** due external binding limitation
-- Layer 1: **READY**
+- Layer 1: **ACTIVE RESEARCH / PROMOTION LOCKED**
 - Room 01: **V4 DATE-ALIGNED + DOMAIN-LOCKED + DENSITY-GUARDED + REPLAYABLE**
+- Room 02: **WALK-FORWARD + OOS + PERMUTATION-GATED; REAL-DATA RESULT NOT YET CLAIMED**
 - Staircase/promotion: **LOCKED**
