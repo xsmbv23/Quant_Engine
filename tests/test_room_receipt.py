@@ -27,7 +27,11 @@ class RoomReceiptTests(unittest.TestCase):
                 code_path=path,
             )
             self.assertEqual(a, b)
-            self.assertEqual(set(a), {"input_hash", "feature_snapshot_hash", "policy_hash", "output_hash", "execution_signature", "python_implementation"})
+            self.assertEqual(
+                set(a),
+                {"input_hash", "feature_snapshot_hash", "policy_hash", "output_hash", "execution_signature"},
+            )
+            self.assertIn("python_implementation", a["execution_signature"])
             self.assertNotIn("password", str(a).lower())
             self.assertNotIn("database_url", str(a).lower())
 
