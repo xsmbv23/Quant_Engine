@@ -27,7 +27,8 @@ def check_contiguity(dates: list[date] | tuple[date, ...], expected_days: int | 
     expected = expected_days if expected_days is not None else (end - start).days + 1
     expected = max(expected, 0)
     expected_dates = {start + timedelta(days=i) for i in range((end - start).days + 1)}
-    missing = tuple(sorted((expected_dates - set(unique))))
+    # Coverage evidence is serialized canonically as ISO calendar dates.
+    missing = tuple(sorted(d.isoformat() for d in (expected_dates - set(unique))))
     ratio = len(unique) / expected if expected else 0.0
     return CoverageReport(start.isoformat(), end.isoformat(), expected, len(unique), ratio, missing)
 
