@@ -36,10 +36,10 @@ class Ketqua16CollectorTests(unittest.TestCase):
         thread.start()
         try:
             import urllib.request
-            response = urllib.request.urlopen(
+            with urllib.request.urlopen(
                 f"http://127.0.0.1:{server.server_port}/", timeout=2
-            )
-            raw, truncated = _read_bounded(response)
+            ) as response:
+                raw, truncated = _read_bounded(response)
             self.assertFalse(truncated)
             self.assertEqual(raw, _Handler.payload)
             self.assertEqual(hashlib.sha256(raw).hexdigest(), hashlib.sha256(_Handler.payload).hexdigest())
