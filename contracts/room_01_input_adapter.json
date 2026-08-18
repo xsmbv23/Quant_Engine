@@ -1,31 +1,32 @@
 {
-  "contract_id": "ROOM_01_INPUT_ADAPTER_V1",
+  "contract_id": "ROOM_01_INPUT_ADAPTER_V2",
   "room": "LAYER_1_ROOM_01",
+  "implementation": "quant/input_adapter.py",
   "role": "RAW_INPUT_ADMISSION_ONLY",
   "format": "NDJSON",
   "record_schema": {
-    "business_date": "YYYY-MM-DD",
+    "day": "YYYY-MM-DD",
     "source_id": "non-empty string",
-    "value": "integer 0..99",
-    "raw_sha256": "64 lowercase hex characters"
+    "values": "non-empty integer list; each value 0..99",
+    "raw_sha256": "64 lowercase hex characters; upstream exact raw-artifact identity"
   },
-  "required_order": ["business_date", "source_id", "value", "raw_sha256"],
   "window": {
     "max_days": 30,
     "lookahead": false,
     "date_alignment": true,
-    "index_alignment": false
+    "index_alignment": false,
+    "sorting": false
   },
   "admission": {
     "blank_line": "DENY",
     "malformed_json": "DENY",
-    "missing_field": "DENY",
-    "unknown_field": "DENY",
+    "schema_drift": "DENY",
     "bad_date": "DENY",
     "future_date": "DENY",
     "value_out_of_domain": "DENY",
-    "hash_mismatch": "DENY",
-    "duplicate_identity": "DENY",
+    "raw_hash_invalid": "DENY",
+    "raw_hash_expectation": "UPSTREAM_REQUIRED",
+    "duplicate_or_non_causal_day": "DENY",
     "oversized_record": "DENY",
     "synthetic_fill": false
   },
@@ -35,5 +36,6 @@
     "streaming": true,
     "bulk_load": false,
     "max_line_bytes": 16384
-  }
+  },
+  "forensic_rule": "PASS_AT_ROOM_01_IS_PREREQUISITE_ONLY;NO_PASS_INHERITANCE"
 }
