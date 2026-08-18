@@ -17,4 +17,41 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run bounded unit suite
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee test-output.txt
+      - name: Emit forensic receipt
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          p = Path('test-output.txt')
+          data = p.read_bytes() if p.exists() else b''
+          receipt = {
+              'receipt_version': 'FORENSIC_TEST_RECEIPT_V1',
+              'repository': os.environ.get('GITHUB_REPOSITORY', ''),
+              'run_id': os.environ.get('GITHUB_RUN_ID', ''),
+              'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT', ''),
+              'workflow': os.environ.get('GITHUB_WORKFLOW', ''),
+              'sha': os.environ.get('GITHUB_SHA', ''),
+              'event': os.environ.get('GITHUB_EVENT_NAME', ''),
+              'test_output_sha256': hashlib.sha256(data).hexdigest(),
+              'test_output_bytes': len(data),
+              'canonical_input_admitted': False,
+              'credentials_present': False,
+              'source_truth_claim': False,
+          }
+          Path('forensic-receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+      - name: Upload forensic receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensic-test-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            forensic-receipt.json
+            test-output.txt
+          if-no-files-found: error
+          retention-days: 7
