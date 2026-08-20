@@ -1,0 +1,46 @@
+{
+  "contract_id": "QUANT_SOURCE_REGISTRY_V1",
+  "authority": "xsmbv23/Project_Brain_AI",
+  "role": "LAYER_1_LOCAL_PREREQUISITE_ONLY",
+  "source_truth_policy": "SOURCE_TRUTH_CANNOT_BE_OVERWRITTEN_BY_DERIVED_DATA",
+  "registered_sources": [
+    {
+      "source_id": "ketqua16",
+      "role": "PRIMARY_TARGET",
+      "domain": "ketqua16.net",
+      "adapter_required": true,
+      "network_origin_proof_required": true,
+      "official_result_panel_required": true,
+      "ads_are_non_truth_content": true,
+      "status": "CANDIDATE"
+    },
+    {
+      "source_id": "xsmb",
+      "role": "INDEPENDENT_IDENTITY_B",
+      "domain": "xsmb.com.vn",
+      "adapter_required": true,
+      "network_origin_proof_required": true,
+      "official_result_panel_required": true,
+      "ads_are_non_truth_content": true,
+      "status": "CANDIDATE"
+    }
+  ],
+  "admission_chain": [
+    "SOURCE_INDEPENDENCE",
+    "NETWORK_ORIGIN_PROOF",
+    "RESULT_TRANSPORT",
+    "OFFICIAL_RESULT_PANEL",
+    "CANDIDATE",
+    "EXCEL_VS_WEB_MATCH",
+    "CANONICAL_QUORUM",
+    "TRUTH_ADMISSION"
+  ],
+  "unregistered_source": "DENY",
+  "registered_without_adapter": "DENY",
+  "adapter_pass": "CANDIDATE_ONLY",
+  "quorum_rule": "INDEPENDENT_SOURCES_MUST_AGREE_BEFORE_TRUTH_ADMISSION",
+  "derived_tail27": "NEVER_AUTHORITATIVE",
+  "raw_byte_hash": "IDENTITY_ONLY",
+  "semantic_hash": "MEANING_ONLY",
+  "promotion_to_brain": "FORBIDDEN_FROM_QUANT_ENGINE"
+}
