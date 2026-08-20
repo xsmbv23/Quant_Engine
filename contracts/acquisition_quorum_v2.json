@@ -1,0 +1,20 @@
+{
+  "contract_id":"ACQUISITION_QUORUM_V2",
+  "purpose":"Define independent-source quorum without confusing raw artifact identity with semantic agreement.",
+  "source_truth":"xsmbv23/xsmb-quant",
+  "observation_only":true,
+  "raw_hash_semantics":"SHA256 exact bytes within each source artifact",
+  "semantic_hash_semantics":"SHA256 canonical semantic payload after source-specific extraction; used for cross-source agreement",
+  "quorum":"AT_LEAST_TWO_DISTINCT_SOURCE_IDS_WITH_COMPLETE_PROVENANCE_AND_IDENTICAL_SEMANTIC_SHA256",
+  "raw_hash_equality_across_sources":"NOT_REQUIRED",
+  "same_source_duplicate":"DOES_NOT_FORM_QUORUM",
+  "missing_semantic_hash":"PARTIAL",
+  "semantic_hash_conflict":"CONFLICT",
+  "raw_hash_change_against_frozen_source_artifact":"DRIFT_DETECTED",
+  "synthetic_fill":false,
+  "promotion":"FORBIDDEN",
+  "unknown":"NOT_PASS",
+  "pass_semantics":"LOCAL_PREREQUISITE_ONLY",
+  "correction":"CREATE_NEW_IMMUTABLE_OBSERVATION_VERSION",
+  "render_memory_policy":"BOUNDED_STREAMING_ONLY"
+}
