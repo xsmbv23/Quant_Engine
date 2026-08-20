@@ -64,6 +64,16 @@ jobs:
           EOF
           cat artifacts/receipt.json
 
+      - name: Verify receipt semantic boundary
+        run: |
+          python - <<'PY'
+          import json
+          from tools.verify_workflow_receipt_contract import validate_receipt
+          with open("artifacts/receipt.json", encoding="utf-8") as f:
+              validate_receipt(json.load(f))
+          print("workflow receipt contract: PASS")
+          PY
+
       - name: Upload workflow execution receipt
         uses: actions/upload-artifact@v4
         with:
