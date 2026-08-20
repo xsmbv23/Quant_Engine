@@ -34,20 +34,32 @@ jobs:
       - name: Generate workflow execution receipt
         id: generate_receipt
         run: |
+          set -euo pipefail
           mkdir -p artifacts
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RUN_ID="${{ github.run_id }}"
           COMMIT_SHA="${{ github.sha }}"
+          WORKFLOW="${{ github.workflow }}"
+          REPO="${{ github.repository }}"
+          TREE_HASH=$(git rev-parse HEAD^{tree})
+          SOURCE_HASH=$(git ls-files -z contracts tools tests state .github/workflows/admission_check.yml | xargs -0 sha256sum | sha256sum | awk '{print $1}')
           cat <<EOF > artifacts/receipt.json
           {
             "event_type": "REAL_GITHUB_WORKFLOW_EXECUTION",
             "execution_status": "PASS",
+            "repository": "$REPO",
+            "workflow": "$WORKFLOW",
             "run_id": "$RUN_ID",
             "commit_sha": "$COMMIT_SHA",
+            "tree_hash": "$TREE_HASH",
+            "source_set_sha256": "$SOURCE_HASH",
             "timestamp": "$TIMESTAMP",
             "evidence_kind": "REPOSITORY_VERIFIER_EXECUTION",
             "external_runtime_truth": "NOT_PROVEN",
-            "layer": "LAYER_1_ROOM_01"
+            "layer": "LAYER_1_ROOM_01",
+            "promotion": "DENY",
+            "pass_inheritance": false,
+            "unknown_is_not_pass": true
           }
           EOF
           cat artifacts/receipt.json
