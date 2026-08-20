@@ -2,6 +2,13 @@ name: Quant Engine Layer 1 Verification
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'contracts/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/admission_check.yml'
+      - 'state/**'
 
 jobs:
   verify-layer-1:
