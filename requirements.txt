@@ -1,0 +1,2 @@
+# Quant Engine Render foundation intentionally uses Python standard library only.
+# Room-specific research dependencies must be admitted explicitly and bounded.
