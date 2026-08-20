@@ -1,0 +1,33 @@
+{
+  "contract_id": "SOURCE_KETQUA16_V1",
+  "source_id": "ketqua16.net",
+  "role": "REAL_SOURCE_OBSERVATION_ONLY",
+  "transport": {"scheme": "https", "timeout_seconds": 8, "max_raw_bytes": 2097152},
+  "raw_layer": {"capture_exact_response_bytes": true, "raw_sha256": "BYTE_IDENTITY_ONLY", "truncate": "DENY_ADMISSION"},
+  "semantic_layer": {
+    "target": "OFFICIAL_RESULT_PANEL_ONLY",
+    "domain": "XSMB_27_VALUES",
+    "required_values": 27,
+    "value_range": "0..99",
+    "ads": "NON_TRUTH_CONTENT",
+    "navigation": "NON_TRUTH_CONTENT",
+    "footer_header_chrome": "NON_TRUTH_CONTENT",
+    "generic_page_number_regex": "FORBIDDEN_AS_TRUTH_SOURCE",
+    "candidate_without_official_panel": "DENY",
+    "ambiguous_multiple_panels": "DENY",
+    "missing_value": "DENY",
+    "duplicate_position": "DENY",
+    "semantic_sha256": "CANONICAL_27_VALUE_DOMAIN_ONLY"
+  },
+  "provenance": {
+    "source_id_required": true,
+    "runtime_identity_required": true,
+    "business_date_explicit": true,
+    "retrieved_at_utc_required": true,
+    "final_url_required": true,
+    "http_status_required": true,
+    "content_type_required": true
+  },
+  "promotion": "FORBIDDEN",
+  "forensic_rule": "RAW_BYTE_IDENTITY_AND_SEMANTIC_MEANING_ARE_DISTINCT"
+}
