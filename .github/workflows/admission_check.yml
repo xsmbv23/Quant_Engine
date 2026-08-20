@@ -15,32 +15,38 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate Fresh Runtime Receipt
+      - name: Verify source contracts
+        run: python tools/verify_source_contracts.py
+
+      - name: Verify semantic parser contracts
+        run: python tools/verify_parser_contracts.py
+
+      - name: Run repository tests
+        run: python -m unittest discover -s tests -p 'test_*.py'
+
+      - name: Generate workflow execution receipt
         id: generate_receipt
         run: |
           mkdir -p artifacts
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RUN_ID="${{ github.run_id }}"
           COMMIT_SHA="${{ github.sha }}"
-          
-          # Tạo nội dung receipt kiểm toán
           cat <<EOF > artifacts/receipt.json
           {
-            "event_type": "REAL_GITHUB_WORKFLOW_DISPATCH",
-            "status": "PASS",
+            "event_type": "REAL_GITHUB_WORKFLOW_EXECUTION",
+            "execution_status": "PASS",
             "run_id": "$RUN_ID",
             "commit_sha": "$COMMIT_SHA",
             "timestamp": "$TIMESTAMP",
-            "evidence_score": 1,
+            "evidence_kind": "REPOSITORY_VERIFIER_EXECUTION",
+            "external_runtime_truth": "NOT_PROVEN",
             "layer": "LAYER_1_ROOM_01"
           }
           EOF
-          
-          echo "Receipt generated successfully."
           cat artifacts/receipt.json
 
-      - name: Upload Receipt Artifact
+      - name: Upload workflow execution receipt
         uses: actions/upload-artifact@v4
         with:
-          name: fresh-runtime-receipt
+          name: workflow-execution-receipt
           path: artifacts/receipt.json
