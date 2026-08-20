@@ -1,0 +1,25 @@
+{
+  "contract_id": "RESEARCH_DATASET_ADMISSION_V1",
+  "purpose": "transition canonical real data into reproducible research without weakening forensic controls",
+  "requires": [
+    "CANONICAL_TRUTH_ADMITTED",
+    "EXPLICIT_EVENT_DATE",
+    "EXPLICIT_SOURCE_IDENTITY",
+    "INFORMATION_TIMESTAMP_BOUNDARY",
+    "NO_LOOKAHEAD",
+    "IMMUTABLE_EVIDENCE_REFERENCES",
+    "REPRODUCIBLE_CANONICAL_DATASET_HASH",
+    "UNKNOWN_REMAINS_UNKNOWN",
+    "FIXTURE_EXPLICITLY_MARKED",
+    "BOUNDED_MEMORY_EXECUTION"
+  ],
+  "raw_vs_semantic_hash": "SEPARATE",
+  "production_synthetic_data": "FORBIDDEN",
+  "generic_page_number_as_truth": "FORBIDDEN",
+  "ads_as_truth": "FORBIDDEN",
+  "official_result_panel": "REQUIRED",
+  "research_promotion": "DENY_UNTIL_ALL_REQUIRED_EVIDENCE_EXISTS",
+  "room_02": "LOCKED_UNTIL_CANONICAL_REAL_DATA_ADMITTED",
+  "render_memory_guard_bytes": 335544320,
+  "heavy_research_execution": "EXTERNAL_BOUNDED_OR_CHUNKED"
+}
