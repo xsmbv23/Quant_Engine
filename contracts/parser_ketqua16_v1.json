@@ -1,0 +1,42 @@
+{
+  "contract_id": "PARSER_KETQUA16_V1",
+  "source_id": "ketqua16.net",
+  "room": "LAYER_1_ROOM_01",
+  "role": "SEMANTIC_PARSER_ONLY",
+  "input": {
+    "raw_artifact": "EXACT_CAPTURED_RESPONSE_BYTES",
+    "raw_receipt": "REQUIRED",
+    "raw_sha256": "MUST_MATCH_RECEIPT",
+    "source_id": "MUST_MATCH_SOURCE_CONTRACT",
+    "runtime_identity": "REQUIRED"
+  },
+  "truth_boundary": {
+    "official_result_panel": "REQUIRED",
+    "ads": "EXCLUDE",
+    "navigation": "EXCLUDE",
+    "header_footer_chrome": "EXCLUDE",
+    "generic_page_numbers": "EXCLUDE",
+    "unrelated_tables": "EXCLUDE",
+    "ambiguous_panel": "DENY"
+  },
+  "canonical_domain": {
+    "name": "XSMB_27_VALUES",
+    "positions": 27,
+    "each_value": "INTEGER_0_TO_99",
+    "missing_position": "DENY",
+    "duplicate_position": "DENY",
+    "extra_unmapped_truth_values": "DENY",
+    "ordering": "EXPLICIT_POSITION_ORDER_ONLY",
+    "semantic_sha256": "SHA256_CANONICAL_27_VALUES"
+  },
+  "provenance": {
+    "business_date": "EXPLICIT_CALLER_INPUT_OR_VERIFIED_PANEL_DATE",
+    "retrieved_at_utc": "REQUIRED",
+    "final_url": "REQUIRED",
+    "http_status": "REQUIRED",
+    "content_type": "REQUIRED",
+    "parser_contract_id": "REQUIRED"
+  },
+  "failure": "COMPACT_RECEIPT_ONLY;RAW_ARTIFACT_IMMUTABLE",
+  "promotion": "FORBIDDEN"
+}
