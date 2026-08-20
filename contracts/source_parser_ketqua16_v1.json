@@ -1,0 +1,23 @@
+{
+  "contract_id":"SOURCE_PARSER_KETQUA16_V1",
+  "source_id":"ketqua16.net",
+  "role":"RAW_TO_SEMANTIC_OBSERVER",
+  "acquisition":"RAW_BYTES_FIRST",
+  "raw_hash":"SHA256_EXACT_BYTES",
+  "semantic_hash":"SHA256_CANONICAL_27_VALUE_DOMAIN",
+  "business_date":"EXPLICIT_INPUT_ONLY",
+  "parser_must":"extract_only_values_explicitly attributable to the declared business date",
+  "canonical_domain":"27 canonical XSMB prize values in declared prize order",
+  "allowed_result":"27_VALUES_OR_VALID_EMPTY",
+  "missing_value":"DENY",
+  "ambiguous_value":"DENY",
+  "duplicate_value":"DENY",
+  "future_date":"DENY",
+  "silent_fill":"FORBIDDEN",
+  "interpolation":"FORBIDDEN",
+  "synthetic_data":"FORBIDDEN",
+  "advertisement_content":"NON_DATA_NOISE_MUST_NOT_ENTER_CANONICAL_DOMAIN",
+  "raw_artifact_immutable":true,
+  "source_identity_separate_from_raw_hash":true,
+  "promotion":"BRAIN_ADMISSION_REQUIRED"
+}
