@@ -59,12 +59,26 @@ def _write_receipt() -> None:
     receipt = {
         "schema": "bot2-runtime-receipt/v1",
         "worker": "BOT2_QUANT_WORKER",
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
         "reasoning": "READY" if reasoning_configured() else "NOT_CONFIGURED",
         "gate_authority": "NONE",
         "promotion": "DENY",
         "observation": LAST_OBSERVATION,
     }
+    if os.path.exists(RECEIPT_PATH):
+        try:
+            with open(RECEIPT_PATH, "r", encoding="utf-8") as handle:
+                previous = json.load(handle)
+            if (
+                previous.get("observation", {}).get("bus_sha256")
+                == receipt["observation"].get("bus_sha256")
+                and previous.get("observation", {}).get("status")
+                == receipt["observation"].get("status")
+                and previous.get("reasoning") == receipt["reasoning"]
+            ):
+                return
+        except (OSError, json.JSONDecodeError):
+            pass
+    receipt["recorded_at"] = datetime.now(timezone.utc).isoformat()
     with open(RECEIPT_PATH, "w", encoding="utf-8") as handle:
         json.dump(receipt, handle, sort_keys=True, indent=2)
         handle.write("\n")
