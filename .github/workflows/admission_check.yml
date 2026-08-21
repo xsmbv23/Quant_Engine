@@ -10,9 +10,17 @@ on:
       - '.github/workflows/admission_check.yml'
       - 'state/**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: quant-layer-1-admission-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   verify-layer-1:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
