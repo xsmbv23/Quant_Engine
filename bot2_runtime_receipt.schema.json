@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bot 2 Runtime Receipt",
+  "type": "object",
+  "required": ["schema", "worker", "reasoning", "gate_authority", "promotion", "observation", "recorded_at"],
+  "properties": {
+    "schema": {"const": "bot2-runtime-receipt/v1"},
+    "worker": {"const": "BOT2_QUANT_WORKER"},
+    "reasoning": {"enum": ["READY", "NOT_CONFIGURED"]},
+    "gate_authority": {"const": "NONE"},
+    "promotion": {"const": "DENY"},
+    "observation": {
+      "type": "object",
+      "required": ["status", "bus_sha256"],
+      "properties": {
+        "status": {"type": "string"},
+        "cycle_id": {"type": ["string", "null"]},
+        "cycle_status": {"type": ["string", "null"]},
+        "e2e_segment": {"type": ["string", "null"]},
+        "blocker": {"type": ["string", "null"]},
+        "bus_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "required_action": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "recorded_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}
