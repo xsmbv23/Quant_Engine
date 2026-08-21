@@ -2,7 +2,7 @@
   "gate_authority": "NONE",
   "observation": {
     "blocker": null,
-    "bus_sha256": "e9252e93f670ab88819574064a37c6b6bbdc6dbc43c590a1c44bfba3f92ce28e",
+    "bus_sha256": "a5b9c1e92cf803333eae1919087a7bd309fd5579595b2286e7cc3f85ad65fe72",
     "cycle_id": null,
     "cycle_status": null,
     "e2e_segment": null,
@@ -11,7 +11,7 @@
   },
   "promotion": "DENY",
   "reasoning": "NOT_CONFIGURED",
-  "recorded_at": "2026-08-21T07:30:16.205915+00:00",
+  "recorded_at": "2026-08-21T16:15:36.656333+00:00",
   "schema": "bot2-runtime-receipt/v1",
   "worker": "BOT2_QUANT_WORKER"
 }
