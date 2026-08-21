@@ -2,6 +2,9 @@ name: Bot 2 Coordination Worker
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/bot2-coordination.yml"
   schedule:
     - cron: "*/5 * * * *"
 
