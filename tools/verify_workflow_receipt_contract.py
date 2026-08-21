@@ -20,8 +20,15 @@ def validate_receipt(receipt: dict) -> None:
     for key, expected in REQUIRED.items():
         if receipt.get(key) != expected:
             raise ValueError(f"receipt semantic violation: {key}={receipt.get(key)!r}")
-    for key in ("repository", "workflow", "run_id", "commit_sha", "tree_hash", "source_set_sha256", "timestamp"):
+
+    required_fields = (
+        "repository", "workflow", "workflow_ref", "workflow_sha",
+        "event_name", "ref", "actor", "run_id", "run_attempt",
+        "commit_sha", "tree_hash", "source_set_sha256", "timestamp",
+    )
+    for key in required_fields:
         if not receipt.get(key):
             raise ValueError(f"receipt missing required field: {key}")
+
     if receipt.get("layer") != "LAYER_1_ROOM_01":
         raise ValueError("receipt layer must remain scoped to LAYER_1_ROOM_01")
