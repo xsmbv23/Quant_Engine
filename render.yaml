@@ -1,0 +1,18 @@
+services:
+  - type: worker
+    name: quant-bot2-worker
+    runtime: python
+    region: singapore
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot2_worker.py
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: COORDINATION_REPO
+        value: xsmbv23/Project_Brain_AI
+      - key: COORDINATION_PATH
+        value: coordination/current_cycle.json
+      - key: POLL_SECONDS
+        value: "60"
+      - key: GITHUB_TOKEN
+        sync: false
