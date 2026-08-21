@@ -6,7 +6,6 @@ It does not perform AI reasoning, mutate canonical state, or open forensic gates
 """
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import os
@@ -19,6 +18,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 REPO = os.environ.get("COORDINATION_REPO", "xsmbv23/Project_Brain_AI")
+BRANCH = os.environ.get("COORDINATION_BRANCH", "main")
 BUS_PATH = os.environ.get("COORDINATION_PATH", "coordination/current_cycle.json")
 POLL_SECONDS = int(os.environ.get("POLL_SECONDS", "60"))
 RUN_ONCE = os.environ.get("RUN_ONCE", "0") == "1"
@@ -31,22 +31,15 @@ def _stop(_signum, _frame):
     global STOP
     STOP = True
 
-
 signal.signal(signal.SIGTERM, _stop)
 signal.signal(signal.SIGINT, _stop)
 
 
-def _github_get(path: str) -> dict:
-    url = f"https://api.github.com/repos/{REPO}/contents/{path}"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "bot2-quant-worker",
-        },
-    )
+def _github_get(path: str) -> str:
+    url = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/{path}"
+    req = urllib.request.Request(url, headers={"User-Agent": "bot2-quant-worker"})
     with urllib.request.urlopen(req, timeout=20) as resp:
-        return json.load(resp)
+        return resp.read().decode("utf-8")
 
 
 def _log(event: str, **fields) -> None:
@@ -61,9 +54,7 @@ def _log(event: str, **fields) -> None:
 
 def poll_once() -> None:
     global LAST_OBSERVATION
-    raw = _github_get(BUS_PATH)
-    decoded = raw.get("content", "")
-    content = base64.b64decode(decoded).decode("utf-8") if decoded else ""
+    content = _github_get(BUS_PATH)
     digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
     try:
         cycle = json.loads(content)
