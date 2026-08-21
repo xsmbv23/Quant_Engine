@@ -1,0 +1,31 @@
+name: Bot 2 Coordination Worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  poll-coordination:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Bot 2 coordination cycle
+        env:
+          COORDINATION_REPO: xsmbv23/Project_Brain_AI
+          COORDINATION_PATH: coordination/current_cycle.json
+        run: python bot2_worker.py --once
