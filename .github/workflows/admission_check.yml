@@ -38,8 +38,14 @@ jobs:
           mkdir -p artifacts
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RUN_ID="${{ github.run_id }}"
+          RUN_ATTEMPT="${{ github.run_attempt }}"
           COMMIT_SHA="${{ github.sha }}"
           WORKFLOW="${{ github.workflow }}"
+          WORKFLOW_REF="${{ github.workflow_ref }}"
+          WORKFLOW_SHA="${{ github.workflow_sha }}"
+          EVENT_NAME="${{ github.event_name }}"
+          REF="${{ github.ref }}"
+          ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           TREE_HASH=$(git rev-parse HEAD^{tree})
           SOURCE_HASH=$(git ls-files -z contracts tools tests state .github/workflows/admission_check.yml | xargs -0 sha256sum | sha256sum | awk '{print $1}')
@@ -49,7 +55,13 @@ jobs:
             "execution_status": "PASS",
             "repository": "$REPO",
             "workflow": "$WORKFLOW",
+            "workflow_ref": "$WORKFLOW_REF",
+            "workflow_sha": "$WORKFLOW_SHA",
+            "event_name": "$EVENT_NAME",
+            "ref": "$REF",
+            "actor": "$ACTOR",
             "run_id": "$RUN_ID",
+            "run_attempt": "$RUN_ATTEMPT",
             "commit_sha": "$COMMIT_SHA",
             "tree_hash": "$TREE_HASH",
             "source_set_sha256": "$SOURCE_HASH",
