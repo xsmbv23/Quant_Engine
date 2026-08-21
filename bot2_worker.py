@@ -1,8 +1,8 @@
-"""Bot 2 deterministic coordination worker.
+"""Bot 2 coordination worker.
 
-Execution boundary only: polls the public Project_Brain_AI coordination cycle,
-exposes a tiny health endpoint for Render, and emits structured runtime receipts.
-It does not perform AI reasoning, mutate canonical state, or open forensic gates.
+Execution boundary: polls the Project_Brain_AI coordination cycle and exposes
+runtime readiness. Optional reasoning is provider-neutral and fail-closed: no
+claim of autonomous reasoning is made until an LLM provider is configured.
 """
 from __future__ import annotations
 
@@ -16,6 +16,8 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from bot2_reasoning_adapter import configured as reasoning_configured
 
 REPO = os.environ.get("COORDINATION_REPO", "xsmbv23/Project_Brain_AI")
 BRANCH = os.environ.get("COORDINATION_BRANCH", "main")
@@ -70,8 +72,11 @@ def poll_once() -> None:
         "e2e_segment": cycle.get("e2e_segment"),
         "blocker": cycle.get("blocker"),
         "bus_sha256": digest,
+        "required_action": (cycle.get("required_actions") or {}).get("BOT2_QUANT"),
     }
     _log("CYCLE_OBSERVED", **LAST_OBSERVATION)
+    if not reasoning_configured():
+        _log("REASONING_BLOCKED", blocker="BOT2_LLM_REASONING_NOT_CONFIGURED")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -88,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, {
                 "worker": "BOT2_QUANT_WORKER",
                 "role": "COORDINATION_EXECUTION",
-                "reasoning": "NOT_ENABLED",
+                "reasoning": "READY" if reasoning_configured() else "NOT_CONFIGURED",
                 "gate_authority": "NONE",
                 "promotion": "DENY",
                 "last_observation": LAST_OBSERVATION,
@@ -110,7 +115,7 @@ def _serve() -> None:
 
 
 if __name__ == "__main__":
-    _log("START", port=PORT, poll_seconds=POLL_SECONDS)
+    _log("START", port=PORT, poll_seconds=POLL_SECONDS, reasoning_configured=reasoning_configured())
     server_thread = threading.Thread(target=_serve, daemon=True)
     server_thread.start()
     while not STOP:
