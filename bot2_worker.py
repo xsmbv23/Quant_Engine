@@ -22,6 +22,7 @@ from bot2_reasoning_adapter import configured as reasoning_configured
 REPO = os.environ.get("COORDINATION_REPO", "xsmbv23/Project_Brain_AI")
 BRANCH = os.environ.get("COORDINATION_BRANCH", "main")
 BUS_PATH = os.environ.get("COORDINATION_PATH", "coordination/current_cycle.json")
+RECEIPT_PATH = os.environ.get("BOT2_RECEIPT_PATH", "bot2_runtime_receipt.json")
 POLL_SECONDS = int(os.environ.get("POLL_SECONDS", "60"))
 RUN_ONCE = os.environ.get("RUN_ONCE", "0") == "1"
 PORT = int(os.environ.get("PORT", "10000"))
@@ -54,6 +55,21 @@ def _log(event: str, **fields) -> None:
     print(json.dumps(payload, sort_keys=True), flush=True)
 
 
+def _write_receipt() -> None:
+    receipt = {
+        "schema": "bot2-runtime-receipt/v1",
+        "worker": "BOT2_QUANT_WORKER",
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "reasoning": "READY" if reasoning_configured() else "NOT_CONFIGURED",
+        "gate_authority": "NONE",
+        "promotion": "DENY",
+        "observation": LAST_OBSERVATION,
+    }
+    with open(RECEIPT_PATH, "w", encoding="utf-8") as handle:
+        json.dump(receipt, handle, sort_keys=True, indent=2)
+        handle.write("\n")
+
+
 def poll_once() -> None:
     global LAST_OBSERVATION
     content = _github_get(BUS_PATH)
@@ -63,6 +79,7 @@ def poll_once() -> None:
     except json.JSONDecodeError:
         LAST_OBSERVATION = {"status": "BUS_INVALID_JSON", "bus_sha256": digest}
         _log("BUS_INVALID_JSON", content_sha256=digest)
+        _write_receipt()
         return
 
     LAST_OBSERVATION = {
@@ -77,6 +94,7 @@ def poll_once() -> None:
     _log("CYCLE_OBSERVED", **LAST_OBSERVATION)
     if not reasoning_configured():
         _log("REASONING_BLOCKED", blocker="BOT2_LLM_REASONING_NOT_CONFIGURED")
+    _write_receipt()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -125,6 +143,7 @@ if __name__ == "__main__":
             LAST_OBSERVATION.clear()
             LAST_OBSERVATION.update({"status": "POLL_ERROR", "error": type(exc).__name__})
             _log("POLL_ERROR", error=type(exc).__name__, detail=str(exc))
+            _write_receipt()
         if RUN_ONCE:
             break
         for _ in range(POLL_SECONDS):
