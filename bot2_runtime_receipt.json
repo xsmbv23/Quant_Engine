@@ -1,0 +1,17 @@
+{
+  "gate_authority": "NONE",
+  "observation": {
+    "blocker": "MULTI_BOT_COMMUNICATION_IS_MANUAL",
+    "bus_sha256": "8a2cc2d455cd31b589490d1cdc71f187ed0a78988292e3010566211be6118a52",
+    "cycle_id": "CYCLE-BOOTSTRAP-001",
+    "cycle_status": "OPEN_CROSS_REVIEW",
+    "e2e_segment": "S1_DATA_ADMISSION",
+    "required_action": "challenge BOT3 freshness/lineage constraint and identify data/quant loopholes",
+    "status": "CYCLE_OBSERVED"
+  },
+  "promotion": "DENY",
+  "reasoning": "NOT_CONFIGURED",
+  "recorded_at": "2026-08-21T06:43:13.913257+00:00",
+  "schema": "bot2-runtime-receipt/v1",
+  "worker": "BOT2_QUANT_WORKER"
+}
