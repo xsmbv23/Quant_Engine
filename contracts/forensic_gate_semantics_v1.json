@@ -1,0 +1,32 @@
+{
+  "contract_id":"FORENSIC_GATE_SEMANTICS_V1",
+  "fsm":"ONE_FORENSIC_FSM",
+  "pass_is_local":true,
+  "pass_is_prerequisite_only":true,
+  "pass_inheritance":false,
+  "unknown_is_not_pass":true,
+  "default_deny":true,
+  "own_gate_evidence_required":true,
+  "fresh_evidence_required_for_promotion":true,
+  "fail_or_unknown_reachability":"STOP",
+  "later_gate_state_after_stop":"UNREACHED",
+  "database_chain":["DB_EXISTENCE","DB_BINDING","SECRET_RESOLUTION","DB_TLS_ADMISSION","NETWORK_ORIGIN_PROOF","DB_ROUND_TRIP","PROMOTION"],
+  "database_gate_meanings":{
+    "DB_EXISTENCE":"resource existence evidence only",
+    "DB_BINDING":"service binding evidence only",
+    "SECRET_RESOLUTION":"secret resolution evidence without credential disclosure",
+    "DB_TLS_ADMISSION":"transport security evidence only",
+    "NETWORK_ORIGIN_PROOF":"authorized runtime-origin evidence only",
+    "DB_ROUND_TRIP":"real compact write-read-hash-match evidence only",
+    "PROMOTION":"governance decision only"
+  },
+  "source_hash_domains":{
+    "raw_hash":"exact raw bytes within one source artifact",
+    "semantic_hash":"canonical semantic payload for cross-source comparison"
+  },
+  "brain_authority":"xsmbv23/Project_Brain_AI",
+  "brain_state_mutation":"FORBIDDEN",
+  "promotion":"FORBIDDEN_UNTIL_OWN_GATE_EVIDENCE",
+  "render_memory_guard_bytes":335544320,
+  "successor_requirement":"Read and enforce this contract before changing admission or promotion logic."
+}
