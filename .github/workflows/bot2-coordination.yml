@@ -28,4 +28,5 @@ jobs:
         env:
           COORDINATION_REPO: xsmbv23/Project_Brain_AI
           COORDINATION_PATH: coordination/current_cycle.json
-        run: python bot2_worker.py --once
+          RUN_ONCE: "1"
+        run: python bot2_worker.py
