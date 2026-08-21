@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Headless Bot2 worker for Project Brain allocation cycles."""
 from __future__ import annotations
-import hashlib,json,os,time,urllib.request
+import hashlib,json,os,time,urllib.request,threading
 from datetime import datetime,timezone
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 REPO=os.getenv('COORDINATION_REPO','xsmbv23/Project_Brain_AI'); BRANCH=os.getenv('COORDINATION_BRANCH','main'); POLL=int(os.getenv('POLL_SECONDS','60')); PORT=int(os.getenv('PORT','10000')); LAST={"status":"STARTING"}
@@ -9,9 +9,12 @@ def get(path):
  u=f'https://raw.githubusercontent.com/{REPO}/{BRANCH}/{path}'; r=urllib.request.Request(u,headers={'User-Agent':'bot2-quant-headless'}); return urllib.request.urlopen(r,timeout=20).read().decode()
 def poll():
  global LAST
- raw=get('coordination/worker_allocation_v1.json'); sha=hashlib.sha256(raw.encode()).hexdigest(); outer=json.loads(raw); alloc=json.loads(outer['content']) if isinstance(outer.get('content'),str) else outer; task=alloc.get('workers',{}).get('BOT2_QUANT',{})
- LAST={"status":"ALLOCATION_OBSERVED","worker":"BOT2_QUANT","allocation_id":alloc.get('allocation_id'),"cycle_id":alloc.get('cycle_id'),"task":task.get('action'),"allocation_sha256":sha,"authority":"BOT1_ONLY","promotion":"DENY","canonical_mutation":"FORBIDDEN","observed_at":datetime.now(timezone.utc).isoformat()}
- print(json.dumps(LAST,sort_keys=True),flush=True)
+ try:
+  raw=get('coordination/worker_allocation_v1.json'); sha=hashlib.sha256(raw.encode()).hexdigest(); outer=json.loads(raw); alloc=json.loads(outer['content']) if isinstance(outer.get('content'),str) else outer; task=alloc.get('workers',{}).get('BOT2_QUANT',{})
+  LAST={"status":"ALLOCATION_OBSERVED","worker":"BOT2_QUANT","allocation_id":alloc.get('allocation_id'),"cycle_id":alloc.get('cycle_id'),"task":task.get('action'),"allocation_sha256":sha,"authority":"BOT1_ONLY","promotion":"DENY","canonical_mutation":"FORBIDDEN","observed_at":datetime.now(timezone.utc).isoformat()}
+  print(json.dumps(LAST,sort_keys=True),flush=True)
+ except Exception as e:
+  LAST={"status":"POLL_ERROR","error":type(e).__name__}; print(json.dumps(LAST,sort_keys=True),flush=True)
 class H(BaseHTTPRequestHandler):
  def do_GET(self):
   if self.path=='/health':
@@ -20,7 +23,6 @@ class H(BaseHTTPRequestHandler):
  def log_message(self,*a): pass
 if __name__=='__main__':
  s=ThreadingHTTPServer(('0.0.0.0',PORT),H)
- while True:
-  try: poll()
-  except Exception as e: LAST={"status":"POLL_ERROR","error":type(e).__name__}; print(json.dumps(LAST),flush=True)
-  s.timeout=1; s.handle_request(); time.sleep(POLL)
+ t=threading.Thread(target=lambda: [poll() or time.sleep(POLL) for _ in iter(int,1)],daemon=True); t.start()
+ print(json.dumps({"status":"HTTP_READY","worker":"BOT2_QUANT","port":PORT}),flush=True)
+ s.serve_forever()
