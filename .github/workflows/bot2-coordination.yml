@@ -3,30 +3,43 @@ name: Bot 2 Coordination Worker
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: bot2-coordination
+  cancel-in-progress: false
 
 jobs:
   poll-coordination:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
       - name: Run Bot 2 coordination cycle
         env:
           COORDINATION_REPO: xsmbv23/Project_Brain_AI
           COORDINATION_PATH: coordination/current_cycle.json
+          BOT2_RECEIPT_PATH: bot2_runtime_receipt.json
           RUN_ONCE: "1"
         run: python bot2_worker.py
+      - name: Persist changed Bot 2 receipt
+        run: |
+          if git diff --quiet -- bot2_runtime_receipt.json; then
+            echo "No new Bot 2 receipt; nothing to commit."
+            exit 0
+          fi
+          git config user.name "BOT2_QUANT_WORKER"
+          git config user.email "bot2-quant-worker@users.noreply.github.com"
+          git add bot2_runtime_receipt.json
+          git commit -m "bot2: persist coordination receipt"
+          git push origin HEAD:main
