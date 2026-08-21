@@ -34,7 +34,7 @@ jobs:
         run: python bot2_worker.py
       - name: Persist changed Bot 2 receipt
         run: |
-          if git diff --quiet -- bot2_runtime_receipt.json; then
+          if git status --porcelain -- bot2_runtime_receipt.json | grep -q '^$'; then
             echo "No new Bot 2 receipt; nothing to commit."
             exit 0
           fi
