@@ -2,12 +2,14 @@
 
 Acquisition only. No parsing, normalization, signal generation, or truth
 promotion is allowed here. Exact response bytes are hashed before any
-interpretation and stored with a compact provenance receipt.
+interpretation. Missing authorization/reference remains an admission evidence
+ gap; it is never treated as permission.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import socket
 import urllib.error
 import urllib.request
@@ -36,6 +38,8 @@ class RawCaptureReceipt:
     raw_bytes_sha256: str
     raw_artifact_path: str
     truncated: bool
+    acquisition_channel: str
+    acquisition_reference: str
 
 
 def _utc_now() -> str:
@@ -64,12 +68,9 @@ def _read_bounded(response) -> tuple[bytes, bool]:
 def capture_raw(business_date: str, *, artifact_root: str | Path = "data_buffer/raw_artifacts") -> RawCaptureReceipt:
     if not business_date:
         raise ValueError("business_date is required and must be explicit")
-
-    request = urllib.request.Request(
-        SOURCE_URL,
-        headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"},
-        method="GET",
-    )
+    channel = os.environ.get("ACQUISITION_CHANNEL", "").strip()
+    reference = os.environ.get("ACQUISITION_REFERENCE", "").strip()
+    request = urllib.request.Request(SOURCE_URL, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"}, method="GET")
     retrieved_at = _utc_now()
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
@@ -83,24 +84,8 @@ def capture_raw(business_date: str, *, artifact_root: str | Path = "data_buffer/
     digest = hashlib.sha256(raw).hexdigest()
     day_dir = Path(artifact_root) / business_date
     day_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{SOURCE_ID.replace('.', '_')}_{digest}"
-    raw_path = day_dir / f"{stem}.raw"
+    raw_path = day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.raw"
     raw_path.write_bytes(raw)
-
-    receipt = RawCaptureReceipt(
-        business_date=business_date,
-        source_id=SOURCE_ID,
-        source_url=SOURCE_URL,
-        final_url=final_url,
-        retrieved_at_utc=retrieved_at,
-        http_status=status,
-        content_type=content_type,
-        raw_bytes=len(raw),
-        raw_bytes_sha256=digest,
-        raw_artifact_path=str(raw_path),
-        truncated=truncated,
-    )
-    (day_dir / f"{stem}.receipt.json").write_text(
-        json.dumps(asdict(receipt), ensure_ascii=False, sort_keys=True), encoding="utf-8"
-    )
+    receipt = RawCaptureReceipt(business_date, SOURCE_ID, SOURCE_URL, final_url, retrieved_at, status, content_type, len(raw), digest, str(raw_path), truncated, channel, reference)
+    (day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.receipt.json").write_text(json.dumps(asdict(receipt), ensure_ascii=False, sort_keys=True), encoding="utf-8")
     return receipt
