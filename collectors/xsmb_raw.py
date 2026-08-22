@@ -89,3 +89,12 @@ def capture_raw(business_date: str, *, artifact_root: str | Path = "data_buffer/
     receipt = RawCaptureReceipt(business_date, SOURCE_ID, SOURCE_URL, final_url, retrieved_at, status, content_type, len(raw), digest, str(raw_path), truncated, channel, reference)
     (day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.receipt.json").write_text(json.dumps(asdict(receipt), ensure_ascii=False, sort_keys=True), encoding="utf-8")
     return receipt
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Capture exact xsmb.com.vn response bytes")
+    parser.add_argument("business_date")
+    parser.add_argument("--artifact-root", default="data_buffer/raw_artifacts")
+    args = parser.parse_args()
+    print(json.dumps(asdict(capture_raw(args.business_date, artifact_root=args.artifact_root)), ensure_ascii=False, sort_keys=True))
