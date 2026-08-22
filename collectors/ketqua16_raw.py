@@ -1,14 +1,15 @@
 """Minimal real-source raw collector for ketqua16.net.
 
-Room 01 acquisition only. This module deliberately does NOT parse lottery
-numbers, normalize HTML, follow application logic, or promote data to truth.
-It captures the exact response bytes, hashes them before any interpretation,
-and emits a compact provenance receipt.
+Acquisition only. No parsing, normalization, signal generation, or truth
+promotion is allowed here. Exact response bytes are hashed before any
+interpretation. Admission metadata is explicit and fail-closed downstream:
+missing authorization/reference is evidence-gap, never an implicit grant.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import socket
 import time
 import urllib.error
@@ -38,6 +39,8 @@ class RawCaptureReceipt:
     raw_bytes_sha256: str
     raw_artifact_path: str
     truncated: bool
+    acquisition_channel: str
+    acquisition_reference: str
 
 
 def _utc_now() -> str:
@@ -64,24 +67,13 @@ def _read_bounded(response) -> tuple[bytes, bool]:
     return b"".join(chunks), False
 
 
-def capture_raw(
-    business_date: str,
-    *,
-    artifact_root: str | Path = "data_buffer/raw_artifacts",
-) -> RawCaptureReceipt:
-    """Capture one real response without parsing it.
-
-    ``business_date`` is supplied by the caller and is provenance metadata;
-    this function never infers it from HTML or from the current clock.
-    """
+def capture_raw(business_date: str, *, artifact_root: str | Path = "data_buffer/raw_artifacts") -> RawCaptureReceipt:
     if not business_date:
         raise ValueError("business_date is required and must be explicit")
 
-    request = urllib.request.Request(
-        SOURCE_URL,
-        headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"},
-        method="GET",
-    )
+    channel = os.environ.get("ACQUISITION_CHANNEL", "").strip()
+    reference = os.environ.get("ACQUISITION_REFERENCE", "").strip()
+    request = urllib.request.Request(SOURCE_URL, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"}, method="GET")
     retrieved_at = _utc_now()
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
@@ -93,35 +85,19 @@ def capture_raw(
         raise RuntimeError(f"COLLECTOR_NETWORK_FAIL:{type(exc).__name__}") from exc
 
     digest = hashlib.sha256(raw).hexdigest()
-    root = Path(artifact_root)
-    day_dir = root / business_date
+    day_dir = Path(artifact_root) / business_date
     day_dir.mkdir(parents=True, exist_ok=True)
     raw_path = day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.raw"
     raw_path.write_bytes(raw)
-
-    receipt = RawCaptureReceipt(
-        business_date=business_date,
-        source_id=SOURCE_ID,
-        source_url=SOURCE_URL,
-        final_url=final_url,
-        retrieved_at_utc=retrieved_at,
-        http_status=status,
-        content_type=content_type,
-        raw_bytes=len(raw),
-        raw_bytes_sha256=digest,
-        raw_artifact_path=str(raw_path),
-        truncated=truncated,
-    )
-    receipt_path = day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.receipt.json"
-    receipt_path.write_text(json.dumps(asdict(receipt), ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    receipt = RawCaptureReceipt(business_date, SOURCE_ID, SOURCE_URL, final_url, retrieved_at, status, content_type, len(raw), digest, str(raw_path), truncated, channel, reference)
+    (day_dir / f"{SOURCE_ID.replace('.', '_')}_{digest}.receipt.json").write_text(json.dumps(asdict(receipt), ensure_ascii=False, sort_keys=True), encoding="utf-8")
     return receipt
 
 
 if __name__ == "__main__":
     import argparse
-
     parser = argparse.ArgumentParser(description="Capture exact ketqua16.net response bytes")
-    parser.add_argument("business_date", help="Explicit business date YYYY-MM-DD")
+    parser.add_argument("business_date")
     parser.add_argument("--artifact-root", default="data_buffer/raw_artifacts")
     args = parser.parse_args()
     started = time.monotonic()
