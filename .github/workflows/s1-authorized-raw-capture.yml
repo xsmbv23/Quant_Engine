@@ -1,0 +1,74 @@
+name: s1-authorized-raw-capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      business_date:
+        description: "Explicit XSMB business date (YYYY-MM-DD)"
+        required: true
+        type: string
+      acquisition_reference:
+        description: "Authorization/reference for this capture; never a credential"
+        required: true
+        type: string
+      acquisition_channel:
+        description: "Must be an allowed S1 acquisition channel"
+        required: true
+        type: choice
+        options:
+          - AUTOMATED_SOURCE_WITH_EXPLICIT_PERMISSION
+          - MANUAL_AUTHORIZED_CAPTURE
+          - DURABLE_ARCHIVE_EXPORT
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture exact source bytes
+        env:
+          ACQUISITION_CHANNEL: ${{ inputs.acquisition_channel }}
+          ACQUISITION_REFERENCE: ${{ inputs.acquisition_reference }}
+        run: |
+          set -euo pipefail
+          python collectors/ketqua16_raw.py "${{ inputs.business_date }}"
+          python collectors/xsmb_raw.py "${{ inputs.business_date }}"
+      - name: Verify capture receipts are explicit
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          allowed = {
+              "AUTOMATED_SOURCE_WITH_EXPLICIT_PERMISSION",
+              "MANUAL_AUTHORIZED_CAPTURE",
+              "DURABLE_ARCHIVE_EXPORT",
+          }
+          root = Path("data_buffer/raw_artifacts") / "${{ inputs.business_date }}"
+          receipts = list(root.glob("*.receipt.json"))
+          if len(receipts) != 2:
+              raise SystemExit(f"expected 2 source receipts, found {len(receipts)}")
+          for p in receipts:
+              r = json.loads(p.read_text(encoding="utf-8"))
+              if r.get("acquisition_channel") not in allowed:
+                  raise SystemExit(f"invalid acquisition channel: {p}")
+              if not r.get("acquisition_reference"):
+                  raise SystemExit(f"missing acquisition reference: {p}")
+              if not r.get("retrieved_at_utc") or not r.get("raw_bytes_sha256"):
+                  raise SystemExit(f"incomplete receipt: {p}")
+              if r.get("truncated") is True:
+                  raise SystemExit(f"truncated capture: {p}")
+          PY
+      - name: Upload raw evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-raw-capture-${{ inputs.business_date }}
+          path: data_buffer/raw_artifacts/${{ inputs.business_date }}/
+          if-no-files-found: error
+          retention-days: 90
