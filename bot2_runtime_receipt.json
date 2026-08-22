@@ -39,7 +39,7 @@
   },
   "promotion": "DENY",
   "reasoning": "NOT_CONFIGURED",
-  "recorded_at": "2026-08-22T16:11:23.644773+00:00",
+  "recorded_at": "2026-08-22T16:41:23.515529+00:00",
   "schema": "bot2-runtime-receipt/v2",
   "status": "BLOCKED",
   "task_id": null,
