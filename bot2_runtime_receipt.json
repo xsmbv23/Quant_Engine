@@ -1,5 +1,5 @@
 {
-  "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-002",
+  "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-003",
   "cycle_id": "BRAIN-N175-S1-CANONICAL-EVIDENCE-VERIFIER",
   "gate_authority": "NONE",
   "guard_errors": [
@@ -13,8 +13,8 @@
   "input_sha256": null,
   "model_version": null,
   "observation": {
-    "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-002",
-    "allocation_sha256": "c1b14ad149a527dc3cfa8814b0b729a6d70c91a793344c05bd504152e9128b0d",
+    "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-003",
+    "allocation_sha256": "741f116cbf0eeb947f184e3b985f83dcc38299d365643a4361ae2ec6cdd6d8fe",
     "blocker": "S1 canonical dataset artifact and complete source-independence admission evidence remain unproven",
     "bus_sha256": "a5b9c1e92cf803333eae1919087a7bd309fd5579595b2286e7cc3f85ad65fe72",
     "cycle_id": "BRAIN-N175-S1-CANONICAL-EVIDENCE-VERIFIER",
@@ -39,7 +39,7 @@
   },
   "promotion": "DENY",
   "reasoning": "NOT_CONFIGURED",
-  "recorded_at": "2026-08-22T13:39:06.919901+00:00",
+  "recorded_at": "2026-08-22T13:57:55.850388+00:00",
   "schema": "bot2-runtime-receipt/v2",
   "status": "BLOCKED",
   "task_id": null,
