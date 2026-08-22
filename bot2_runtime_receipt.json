@@ -1,17 +1,48 @@
 {
+  "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-002",
+  "cycle_id": "BRAIN-N175-S1-CANONICAL-EVIDENCE-VERIFIER",
   "gate_authority": "NONE",
+  "guard_errors": [
+    "missing_task_id",
+    "missing_task_type",
+    "missing_input_artifact",
+    "missing_input_sha256",
+    "missing_model_version"
+  ],
+  "input_artifact": null,
+  "input_sha256": null,
+  "model_version": null,
   "observation": {
-    "blocker": null,
+    "allocation_id": "ALLOC-N175-S1-E2E-TRIPLE-WORKER-002",
+    "allocation_sha256": "c1b14ad149a527dc3cfa8814b0b729a6d70c91a793344c05bd504152e9128b0d",
+    "blocker": "S1 canonical dataset artifact and complete source-independence admission evidence remain unproven",
     "bus_sha256": "a5b9c1e92cf803333eae1919087a7bd309fd5579595b2286e7cc3f85ad65fe72",
-    "cycle_id": null,
-    "cycle_status": null,
-    "e2e_segment": null,
-    "required_action": null,
-    "status": "CYCLE_OBSERVED"
+    "cycle_id": "BRAIN-N175-S1-CANONICAL-EVIDENCE-VERIFIER",
+    "cycle_status": "IN_PROGRESS",
+    "e2e_segment": "S1_REAL_DATA",
+    "fresh_execution_observed": false,
+    "guard_errors": [
+      "missing_task_id",
+      "missing_task_type",
+      "missing_input_artifact",
+      "missing_input_sha256",
+      "missing_model_version"
+    ],
+    "input_artifact": null,
+    "input_sha256": null,
+    "model_version": null,
+    "promotion": "DENY",
+    "required_action": "independently challenge S1 provenance, acquisition lineage, coverage, hashes, conflicts and source independence; persist one result",
+    "status": "BLOCKED",
+    "task_id": null,
+    "task_type": null
   },
   "promotion": "DENY",
   "reasoning": "NOT_CONFIGURED",
-  "recorded_at": "2026-08-21T16:15:36.656333+00:00",
-  "schema": "bot2-runtime-receipt/v1",
+  "recorded_at": "2026-08-22T08:32:00.512159+00:00",
+  "schema": "bot2-runtime-receipt/v2",
+  "status": "BLOCKED",
+  "task_id": null,
+  "task_type": null,
   "worker": "BOT2_QUANT_WORKER"
 }
